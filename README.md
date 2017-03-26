@@ -1,0 +1,2 @@
+- Apollo Client network interface
+  - `query(request)` calls directly into our fake backend, or even just uses graphql-anywhere?
