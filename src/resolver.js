@@ -15,9 +15,6 @@ async function resolver(
   context: ?Object,
   info: Object
 ) {
-  console.log({ fieldName, rootValue });
-
-  // Recipes root resolver
   if (fieldName === 'allRecipes') {
     let recipes = await db.getRecipesAsync(args);
     _addTypename(recipes, 'recipe');

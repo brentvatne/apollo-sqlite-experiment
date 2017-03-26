@@ -92,7 +92,7 @@ export default class CookingDatabase {
 
   async getRecipesAsync(options: { limit?: number, offset?: number } = {}) {
     let limit = typeof options.limit === 'number' ? options.limit : 20;
-    let offset = typeof options.limit === 'number' ? options.limit : 0;
+    let offset = typeof options.offset === 'number' ? options.offset : 0;
     let query = `
       select Recipe._id as id, Food.food_name as name, Food.description
       from Recipe inner join Food on Recipe.food_id = Food._id

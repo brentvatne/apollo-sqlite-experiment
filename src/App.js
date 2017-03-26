@@ -54,17 +54,27 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <p>
-          {JSON.stringify(this.props.data.allRecipes)}
-        </p>
+        <ul>
+          {this.props.data.allRecipes &&
+            this.props.data.allRecipes.map(this._renderRecipes)}
+        </ul>
       </div>
     );
   }
+
+  _renderRecipes = recipe => {
+    return (
+      <li key={recipe.id}>
+        <strong>{recipe.name}</strong>
+        <p>{recipe.description}</p>
+      </li>
+    );
+  };
 }
 
 const exampleQuery = gql`
   {
-    allRecipes(limit: 5, offset: 0) {
+    allRecipes(limit: 50, offset: 0) {
       id
       description
       name
