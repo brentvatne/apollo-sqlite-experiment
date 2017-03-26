@@ -2,7 +2,6 @@
 
 import type { DocumentNode, ExecutionResult } from 'graphql';
 import graphql from 'graphql-anywhere';
-import resolver from './resolver';
 
 type Request = {
   [additionalKey: string]: any,

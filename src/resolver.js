@@ -1,32 +1,46 @@
+/* @flow */
+
 let db;
 
-async function resolver(fieldName, rootValue, args, context, info) {
+type RecipeData = {
+  id: number,
+  name: string,
+  description: string,
+};
+
+async function resolver(
+  fieldName: string,
+  rootValue: any,
+  args: ?Array<mixed>,
+  context: ?Object,
+  info: Object
+) {
   console.log({ fieldName, rootValue });
 
   // Recipes root resolver
   if (fieldName === 'allRecipes') {
-    let recipes = await db.getRecipesAsync({
-      limit: args.limit,
-      offset: args.offset,
-    });
-
+    let recipes = await db.getRecipesAsync(args);
     _addTypename(recipes, 'recipe');
     return recipes;
   } else if (fieldName === 'effects') {
-    let recipe = rootValue;
+    let recipe = (rootValue: RecipeData);
     let effects = await db.getEffectsForRecipeAsync(recipe.id);
     _addTypename(effects, 'effect');
 
     return effects;
   } else if (fieldName === 'materials') {
-    let recipe = rootValue;
+    let recipe = (rootValue: RecipeData);
     let materials = await db.getMaterialsForRecipeAsync(recipe.id);
     _addTypename(materials, 'material');
 
     return materials;
   }
 
-  return rootValue[fieldName];
+  if (!rootValue) {
+    return null;
+  } else {
+    return rootValue[fieldName];
+  }
 }
 
 function _addTypename(itemOrArray, typename) {

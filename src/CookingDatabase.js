@@ -1,5 +1,16 @@
+/* @flow */
+
+type CookingDatabaseOptions = {
+  name?: string,
+  size?: number,
+  displayName?: string,
+  version?: string,
+};
+
 export default class CookingDatabase {
-  constructor(options = {}) {
+  _db: SQLiteDatabaseConnection;
+
+  constructor(options: CookingDatabaseOptions = {}) {
     const size = options.size || 5 * 1024 * 1024;
     const name = options.name || 'BOTW-Recipes';
     const displayName = options.displayName || 'Breath Of The Wild Recipes';
@@ -31,7 +42,7 @@ export default class CookingDatabase {
     );
   }
 
-  async readTransactionAsync(query) {
+  async readTransactionAsync(query: string) {
     return new Promise((resolve, reject) => {
       this._db.readTransaction(transaction =>
         transaction.executeSql(
@@ -43,7 +54,7 @@ export default class CookingDatabase {
     });
   }
 
-  async transactionAsync(query) {
+  async transactionAsync(query: string) {
     return new Promise((resolve, reject) => {
       this._db.transaction(transaction =>
         transaction.executeSql(
@@ -55,7 +66,7 @@ export default class CookingDatabase {
     });
   }
 
-  async getEffectsForRecipeAsync(recipeId) {
+  async getEffectsForRecipeAsync(recipeId: number) {
     let query = `
       select Recipe_Effect.effect_value as value, Effect.effect as type from
       Recipe_Effect inner join Effect on Recipe_Effect._id = Effect._id
@@ -67,7 +78,7 @@ export default class CookingDatabase {
     return effects;
   }
 
-  async getMaterialsForRecipeAsync(recipeId) {
+  async getMaterialsForRecipeAsync(recipeId: number) {
     let query = `
       select Material.material_name as name, Material.description as description, Material.sell_price as price from
       Recipe_Mats inner join Material on Recipe_Mats.material_id = Material._id
@@ -79,7 +90,7 @@ export default class CookingDatabase {
     return materials;
   }
 
-  async getRecipesAsync(options = {}) {
+  async getRecipesAsync(options: { limit?: number, offset?: number } = {}) {
     let limit = typeof options.limit === 'number' ? options.limit : 20;
     let offset = typeof options.limit === 'number' ? options.limit : 0;
     let query = `
