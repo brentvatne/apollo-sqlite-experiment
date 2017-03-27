@@ -7,6 +7,11 @@ type CookingDatabaseOptions = {
   version?: string,
 };
 
+type FilterOptions = {
+  limit?: number,
+  offset?: number,
+};
+
 export default class CookingDatabase {
   _db: SQLiteDatabaseConnection;
 
@@ -74,8 +79,19 @@ export default class CookingDatabase {
     `;
 
     let result = await this.readTransactionAsync(query);
-    let effects = [...result.rows];
-    return effects;
+    return [...result.rows];
+  }
+
+  async getRecipesForMaterialAsync(materialId: number) {
+    let query = `
+      select distinct Recipe._id as id, Food.food_name as name, Food.description
+      from Recipe inner join Food on Recipe.food_id = Food._id
+						       inner join Recipe_Mats on Recipe_Mats.recipe_id = Recipe._id
+      where Recipe_Mats.material_id = ${materialId}
+    `;
+
+    let result = await this.readTransactionAsync(query);
+    return [...result.rows];
   }
 
   async getMaterialsForRecipeAsync(recipeId: number) {
@@ -86,11 +102,24 @@ export default class CookingDatabase {
     `;
 
     let result = await this.readTransactionAsync(query);
-    let materials = [...result.rows];
-    return materials;
+    return [...result.rows];
   }
 
-  async getRecipesAsync(options: { limit?: number, offset?: number } = {}) {
+  async getMaterialsAsync(options: FilterOptions = {}) {
+    let limit = typeof options.limit === 'number' ? options.limit : 20;
+    let offset = typeof options.offset === 'number' ? options.offset : 0;
+    let query = `
+      select Material._id as id, Material.material_name as name, Material.description as description,
+      Material.effect_value as hearts, Material.sell_price as sellPrice
+      from Material
+      limit ${limit} offset ${offset}
+    `;
+
+    let result = await this.readTransactionAsync(query);
+    return [...result.rows];
+  }
+
+  async getRecipesAsync(options: FilterOptions = {}) {
     let limit = typeof options.limit === 'number' ? options.limit : 20;
     let offset = typeof options.offset === 'number' ? options.offset : 0;
     let query = `
@@ -100,10 +129,6 @@ export default class CookingDatabase {
     `;
 
     let result = await this.readTransactionAsync(query);
-    let recipes = [...result.rows].map(recipe => {
-      recipe.__typename = 'recipe';
-      return recipe;
-    });
-    return recipes;
+    return [...result.rows];
   }
 }

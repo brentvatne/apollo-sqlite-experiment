@@ -23,7 +23,7 @@ class MemoryNetworkInterface {
   }
 
   async query(request: Request): Promise<ExecutionResult> {
-    let result = await graphql(this._resolver, request.query);
+    let result = await graphql(this._resolver, request.query, null, {});
 
     return {
       data: result,

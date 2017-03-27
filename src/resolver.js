@@ -8,35 +8,53 @@ type RecipeData = {
   description: string,
 };
 
+type MaterialData = {
+  id: number,
+  name: string,
+  description: string,
+  hearts: number,
+};
+
 async function resolver(
   fieldName: string,
   rootValue: any,
   args: ?Array<mixed>,
-  context: ?Object,
+  context: Object,
   info: Object
 ) {
-  if (fieldName === 'allRecipes') {
-    let recipes = await db.getRecipesAsync(args);
-    _addTypename(recipes, 'recipe');
-    return recipes;
-  } else if (fieldName === 'effects') {
-    let recipe = (rootValue: RecipeData);
-    let effects = await db.getEffectsForRecipeAsync(recipe.id);
-    _addTypename(effects, 'effect');
-
-    return effects;
-  } else if (fieldName === 'materials') {
-    let recipe = (rootValue: RecipeData);
-    let materials = await db.getMaterialsForRecipeAsync(recipe.id);
-    _addTypename(materials, 'material');
-
-    return materials;
+  if (!info.isLeaf) {
+    delete context.parentFieldName;
   }
 
-  if (!rootValue) {
-    return null;
+  let result;
+  if (fieldName === 'allRecipes') {
+    result = await db.getRecipesAsync(args);
+    _addTypename(result, 'recipe');
+  } else if (fieldName === 'allMaterials') {
+    result = await db.getMaterialsAsync(args);
+    _addTypename(result, 'material');
+  } else if (fieldName === 'recipes') {
+    let material = rootValue;
+    result = await db.getRecipesForMaterialAsync(material.id);
+    _addTypename(result, 'recipe');
+  } else if (fieldName === 'effects') {
+    let recipe = rootValue;
+    result = await db.getEffectsForRecipeAsync(recipe.id);
+    _addTypename(result, 'effect');
+  } else if (fieldName === 'materials') {
+    let recipe = rootValue;
+    result = await db.getMaterialsForRecipeAsync(recipe.id);
+    _addTypename(result, 'material');
+  }
+
+  if (!info.isLeaf) {
+    context.parentFieldName = fieldName;
+  }
+
+  if (result) {
+    return result;
   } else {
-    return rootValue[fieldName];
+    return rootValue[fieldName] || null;
   }
 }
 
