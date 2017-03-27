@@ -54,13 +54,34 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        {this.props.data.allRecipes && this._renderRecipes()}
-        {this.props.data.allMaterials && this._renderMaterials()}
+        {this.props.data.allRecipes && this._renderAllRecipes()}
+        {this.props.data.allMaterials && this._renderAllMaterials()}
+        {this.props.data.allFood && this._renderAllFood()}
       </div>
     );
   }
 
-  _renderMaterials = () => {
+  _renderAllFood = () => {
+    return (
+      <div>
+        <h1>Food</h1>
+        <ul>
+          {this.props.data.allFood.map(this._renderFood)}
+        </ul>
+      </div>
+    );
+  };
+  _renderFood = food => {
+    return (
+      <li key={food.id}>
+        <strong>{food.name}</strong>
+        <p>{food.description}</p>
+        {food.recipes.map(item => <p key={item.id}>{JSON.stringify(item)}</p>)}
+      </li>
+    );
+  };
+
+  _renderAllMaterials = () => {
     return (
       <div>
         <h1>Materials</h1>
@@ -102,7 +123,7 @@ class App extends Component {
     );
   };
 
-  _renderRecipes = () => {
+  _renderAllRecipes = () => {
     return (
       <div>
         <h1>Recipes</h1>
@@ -112,11 +133,39 @@ class App extends Component {
       </div>
     );
   };
+
   _renderRecipe = recipe => {
     return (
       <li key={recipe.id}>
-        <strong>{recipe.name}</strong>
-        <p>{recipe.description}</p>
+        <h2>id: {recipe.id}</h2>
+        {recipe.food.map(item => {
+          return (
+            <div>
+              <strong>{item.name}</strong>
+              <p>{item.description}</p>
+            </div>
+          );
+        })}
+
+        <h2>effects</h2>
+        {recipe.effects.map(item => {
+          return (
+            <div>
+              <strong>{item.type}</strong>
+              <p>{item.value}</p>
+            </div>
+          );
+        })}
+
+        <h2>materials</h2>
+        {recipe.materials.map(item => {
+          return (
+            <div>
+              <strong>{item.name}</strong>
+              <p>{item.description}</p>
+            </div>
+          );
+        })}
       </li>
     );
   };
@@ -150,8 +199,11 @@ const allRecipesQuery = gql`
   {
     allRecipes(limit: 50, offset: 0) {
       id
-      name
-      description
+      food {
+        id
+        name
+        description
+      }
       effects {
         id
         type
@@ -166,5 +218,28 @@ const allRecipesQuery = gql`
   }
 `;
 
-const AppWithData = graphql(allMaterialsQuery)(App);
+const allFoodQuery = gql`
+  {
+    allFood(limit: 50, offset: 0) {
+      id
+      name
+      description
+      recipes {
+        id 
+        effects {
+          id
+          type
+          value
+        }
+        materials {
+          id
+          name
+          description
+        }
+      }
+    }
+  }
+`;
+
+const AppWithData = graphql(allFoodQuery)(App);
 export default AppContainer;

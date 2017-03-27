@@ -73,8 +73,8 @@ export default class CookingDatabase {
 
   async getEffectsForRecipeAsync(recipeId: number) {
     let query = `
-      select Recipe_Effect.effect_value as value, Effect.effect as type from
-      Recipe_Effect inner join Effect on Recipe_Effect._id = Effect._id
+      select Recipe_Effect._id as id, Recipe_Effect.effect_value as value, Effect.effect as type
+      from Recipe_Effect inner join Effect on Recipe_Effect.effect_id = Effect._id
       where Recipe_Effect.recipe_id = ${recipeId}
     `;
 
@@ -96,7 +96,7 @@ export default class CookingDatabase {
 
   async getMaterialsForRecipeAsync(recipeId: number) {
     let query = `
-      select Material.material_name as name, Material.description as description, Material.sell_price as price from
+      select Material._id as id, Material.material_name as name, Material.description as description, Material.sell_price as price from
       Recipe_Mats inner join Material on Recipe_Mats.material_id = Material._id
       where Recipe_Mats.recipe_id = ${recipeId}
     `;
@@ -123,8 +123,43 @@ export default class CookingDatabase {
     let limit = typeof options.limit === 'number' ? options.limit : 20;
     let offset = typeof options.offset === 'number' ? options.offset : 0;
     let query = `
-      select Recipe._id as id, Food.food_name as name, Food.description
-      from Recipe inner join Food on Recipe.food_id = Food._id
+      select Recipe._id as id
+      from Recipe
+      limit ${limit} offset ${offset}
+    `;
+
+    let result = await this.readTransactionAsync(query);
+    return [...result.rows];
+  }
+
+  async getRecipesForFoodAsync(foodId: number) {
+    let query = `
+      select Recipe._id as id
+      from Recipe
+      where  Recipe.food_id = ${foodId}
+    `;
+
+    let result = await this.readTransactionAsync(query);
+    return [...result.rows];
+  }
+
+  async getFoodForRecipeAsync(recipeId: number) {
+    let query = `
+      select distinct Food._id as id, Food.food_name as name, Food.description
+      from Food inner join Recipe on Recipe.food_id = Food._id
+      where Recipe._id = ${recipeId}
+    `;
+
+    let result = await this.readTransactionAsync(query);
+    return [...result.rows];
+  }
+
+  async getFoodAsync(options: FilterOptions = {}) {
+    let limit = typeof options.limit === 'number' ? options.limit : 20;
+    let offset = typeof options.offset === 'number' ? options.offset : 0;
+    let query = `
+      select Food._id as id, Food.food_name as name, Food.description
+      from Food
       limit ${limit} offset ${offset}
     `;
 

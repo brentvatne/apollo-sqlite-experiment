@@ -4,6 +4,10 @@ let db;
 
 type RecipeData = {
   id: number,
+};
+
+type FoodData = {
+  id: number,
   name: string,
   description: string,
 };
@@ -22,9 +26,12 @@ async function resolver(
   context: Object,
   info: Object
 ) {
-  if (!info.isLeaf) {
-    delete context.parentFieldName;
-  }
+  // TODO: this is dumb broken logic for keeping track of parent node,
+  // should make it better and uncomment. has no impact on current queries
+  // though.. :O
+  // if (!info.isLeaf) {
+  //   delete context.parentFieldName;
+  // }
 
   let result;
   if (fieldName === 'allRecipes') {
@@ -33,14 +40,30 @@ async function resolver(
   } else if (fieldName === 'allMaterials') {
     result = await db.getMaterialsAsync(args);
     _addTypename(result, 'material');
+  } else if (fieldName === 'allFood') {
+    result = await db.getFoodAsync(args);
+    _addTypename(result, 'food');
   } else if (fieldName === 'recipes') {
-    let material = rootValue;
-    result = await db.getRecipesForMaterialAsync(material.id);
+    if (context.parentFieldName === 'allMaterials') {
+      let material = rootValue;
+      result = await db.getRecipesForMaterialAsync(material.id);
+    } else if (context.parentFieldName === 'allFood') {
+      let food = rootValue;
+      result = await db.getRecipesForFoodAsync(food.id);
+    } else {
+      throw new Error(
+        `Invalid field recipes with parentFieldName ${context.parentFieldName}`
+      );
+    }
     _addTypename(result, 'recipe');
   } else if (fieldName === 'effects') {
     let recipe = rootValue;
     result = await db.getEffectsForRecipeAsync(recipe.id);
     _addTypename(result, 'effect');
+  } else if (fieldName === 'food') {
+    let recipe = rootValue;
+    result = await db.getFoodForRecipeAsync(recipe.id);
+    _addTypename(result, 'food');
   } else if (fieldName === 'materials') {
     let recipe = rootValue;
     result = await db.getMaterialsForRecipeAsync(recipe.id);
