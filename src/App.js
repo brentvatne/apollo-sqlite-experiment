@@ -74,6 +74,7 @@ class App extends Component {
   _renderFood = food => {
     return (
       <li key={food.id}>
+        <img src={food.imageUri} />
         <strong>{food.name}</strong>
         <p>{food.description}</p>
         {food.recipes.map(item => <p key={item.id}>{JSON.stringify(item)}</p>)}
@@ -141,6 +142,7 @@ class App extends Component {
         {recipe.food.map(item => {
           return (
             <div>
+              <img src={item.imageUri} />
               <strong>{item.name}</strong>
               <p>{item.description}</p>
             </div>
@@ -161,6 +163,7 @@ class App extends Component {
         {recipe.materials.map(item => {
           return (
             <div>
+              <img src={item.imageUri} />
               <strong>{item.name}</strong>
               <p>{item.description}</p>
             </div>
@@ -179,12 +182,14 @@ const allMaterialsQuery = gql`
       description
       hearts
       price
-
+      imageUri
       recipes {
         id
-        name
-        description
-
+        food {
+          name
+          description
+          imageUri
+        }
         effects {
           id
           type
@@ -203,6 +208,7 @@ const allRecipesQuery = gql`
         id
         name
         description
+        imageUri
       }
       effects {
         id
@@ -213,6 +219,7 @@ const allRecipesQuery = gql`
         id
         name
         description
+        imageUri
       }
     }
   }
@@ -224,6 +231,7 @@ const allFoodQuery = gql`
       id
       name
       description
+      imageUri
       recipes {
         id 
         effects {
@@ -235,11 +243,12 @@ const allFoodQuery = gql`
           id
           name
           description
+          imageUri
         }
       }
     }
   }
 `;
 
-const AppWithData = graphql(allFoodQuery)(App);
+const AppWithData = graphql(allRecipesQuery)(App);
 export default AppContainer;

@@ -84,7 +84,7 @@ export default class CookingDatabase {
 
   async getRecipesForMaterialAsync(materialId: number) {
     let query = `
-      select distinct Recipe._id as id, Food.food_name as name, Food.description
+      select distinct Recipe._id as id, Food.food_name as name, Food.description, Food.index_name as imageFileName
       from Recipe inner join Food on Recipe.food_id = Food._id
 						       inner join Recipe_Mats on Recipe_Mats.recipe_id = Recipe._id
       where Recipe_Mats.material_id = ${materialId}
@@ -96,8 +96,8 @@ export default class CookingDatabase {
 
   async getMaterialsForRecipeAsync(recipeId: number) {
     let query = `
-      select Material._id as id, Material.material_name as name, Material.description as description, Material.sell_price as price from
-      Recipe_Mats inner join Material on Recipe_Mats.material_id = Material._id
+      select Material._id as id, Material.material_name as name, Material.description as description, Material.sell_price as price, Material.index_name as imageFileName
+      from Recipe_Mats inner join Material on Recipe_Mats.material_id = Material._id
       where Recipe_Mats.recipe_id = ${recipeId}
     `;
 
@@ -145,7 +145,7 @@ export default class CookingDatabase {
 
   async getFoodForRecipeAsync(recipeId: number) {
     let query = `
-      select distinct Food._id as id, Food.food_name as name, Food.description
+      select distinct Food._id as id, Food.food_name as name, Food.description, Food.index_name as imageFileName
       from Food inner join Recipe on Recipe.food_id = Food._id
       where Recipe._id = ${recipeId}
     `;
@@ -158,7 +158,7 @@ export default class CookingDatabase {
     let limit = typeof options.limit === 'number' ? options.limit : 20;
     let offset = typeof options.offset === 'number' ? options.offset : 0;
     let query = `
-      select Food._id as id, Food.food_name as name, Food.description
+      select Food._id as id, Food.food_name as name, Food.description, Food.index_name as imageFileName
       from Food
       limit ${limit} offset ${offset}
     `;

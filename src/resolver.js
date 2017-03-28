@@ -68,6 +68,9 @@ async function resolver(
     let recipe = rootValue;
     result = await db.getMaterialsForRecipeAsync(recipe.id);
     _addTypename(result, 'material');
+  } else if (fieldName === 'imageUri') {
+    let { imageFileName } = rootValue;
+    result = `/images/${imageFileName}.png`;
   }
 
   if (!info.isLeaf) {
