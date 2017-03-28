@@ -1,5 +1,5 @@
 {
-  "name": "apollo-sql-experiment",
+  "name": "apollo-sqlite-experiment",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
